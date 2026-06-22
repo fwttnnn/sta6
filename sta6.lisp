@@ -1,10 +1,11 @@
-(defpackage #:app
+(defpackage #:sta6
   (:use #:cl)
   (:export #:spit
            #:walk
-           #:main))
+           #:build
+           #:html5))
 
-(defun app:spit (path thunk)
+(defun sta6:spit (path thunk)
   (ensure-directories-exist path)
   (with-open-file (out path :direction :output
                             :if-exists :supersede
@@ -12,18 +13,18 @@
     (let ((*standard-output* out))
       (funcall thunk))))
   
-(defun app:walk (dir)
+(defun sta6:walk (dir)
   (append
     (uiop:directory-files dir)
-    (mapcan #'app:walk
+    (mapcan #'sta6:walk
             (uiop:subdirectories dir))))
 
-(defun app:main ()
-  (let* ((base (uiop:ensure-directory-pathname (truename "./src/pages/")))
+(defun sta6:build ()
+  (let* ((base (uiop:ensure-directory-pathname (truename "src/pages/")))
          (relatives (mapcar (lambda (file)
                               (namestring (make-pathname :type nil
                                                          :defaults (enough-namestring file base))))
-                            (app:walk base))))
+                            (sta6:walk base))))
     (flet ((ends-with? (str suffix)
              (let ((str-length (length str))
                    (suffix-length (length suffix)))
@@ -34,5 +35,26 @@
                     (out (cond ((string= rel "404")      (format nil "build/404.html"))
                                ((ends-with? rel "index") (format nil "build/~a.html" rel))
                                (t                        (format nil "build/~a/index.html" rel)))))
-                (app:spit out (symbol-function (find-symbol "HTML" pkg)))))
+                (sta6:spit out (symbol-function (find-symbol "RENDER" pkg)))))
             relatives))))
+
+(defmacro sta6:html5 (&rest tags)
+  (let ((head '())
+        (body '()))
+
+    (dolist (tag tags)
+      (cond
+        ((and (consp tag) (eq (first tag) :head))
+         (setf head (rest tag)))
+        (t
+         (push tag body))))
+
+    `(let ((spinneret:*suppress-inserted-spaces* t)
+           (spinneret:*html-style* :tree)
+           (*print-pretty* nil))
+       (format t "<!DOCTYPE html>~%")
+       (format t "~a~%"
+               (spinneret:with-html-string
+                 (:html
+                  (:head ,@head)
+                  (:body ,@(nreverse body))))))))
