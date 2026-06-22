@@ -7,4 +7,6 @@
     (:h1
       "sta6: "
       (:small "sta(six), static"))
-    (:p "static site generator (bundler), written in Common Lisp.")))
+    (:p "static site generator (bundler), written in Common Lisp.")
+    (:ul 
+      (:li (:a :href "/docs/quickstart" :target "_blank" "quickstart/")))))
