@@ -37,7 +37,7 @@
   (let* ((base (uiop:ensure-directory-pathname (truename "src/pages/")))
          (files (mapcar (lambda (file) (namestring (make-pathname :defaults (enough-namestring file base))))
                         (sta6:walk base))))
-    (mapc (lambda (file) (sta6:render file)) files)))
+    (mapc #'sta6:render files)))
 
 (defmacro sta6:html5 (&rest tags)
   (let ((head '())
