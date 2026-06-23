@@ -3,6 +3,17 @@ sta6
 
 static site generator (bundler)
 
+Installation
+------------
+
+Currently, you only install sta6 locally:
+
+    git clone https://github.com/fwttnnn/sta6
+  
+Link the cloned repo into quicklisp registry:
+
+    ln -s sta6 ~/quicklisp/local-projects
+
 Documentation
 -------------
 
