@@ -2,6 +2,7 @@
   (:use #:cl)
   (:export #:spit
            #:walk
+           #:render
            #:build
            #:html5))
 
@@ -19,24 +20,24 @@
     (mapcan #'sta6:walk
             (uiop:subdirectories dir))))
 
+(defun sta6:render (file)
+  (let ((name (pathname-name file))
+        (extn (pathname-type file))
+        (path (namestring (make-pathname :type nil
+                                         :defaults file))))
+    (cond ((string= extn "md") '())
+          ((string= extn "lisp")
+             (let ((pkg (find-package (string-upcase (concatenate 'string "pages/" path))))
+                   (out (cond ((string= name "404")   (format nil "build/404.html"))
+                              ((string= name "index") (format nil "build/~a.html" path))
+                              (t                      (format nil "build/~a/index.html" path)))))
+               (sta6:spit out (symbol-function (find-symbol "RENDER" pkg))))))))
+
 (defun sta6:build ()
   (let* ((base (uiop:ensure-directory-pathname (truename "src/pages/")))
-         (relatives (mapcar (lambda (file)
-                              (namestring (make-pathname :type nil
-                                                         :defaults (enough-namestring file base))))
-                            (sta6:walk base))))
-    (flet ((ends-with? (str suffix)
-             (let ((str-length (length str))
-                   (suffix-length (length suffix)))
-               (and (>= str-length suffix-length)
-                    (string= (subseq str (- str-length suffix-length)) suffix)))))
-      (mapc (lambda (rel)
-              (let ((pkg (find-package (string-upcase (concatenate 'string "pages/" rel))))
-                    (out (cond ((string= rel "404")      (format nil "build/404.html"))
-                               ((ends-with? rel "index") (format nil "build/~a.html" rel))
-                               (t                        (format nil "build/~a/index.html" rel)))))
-                (sta6:spit out (symbol-function (find-symbol "RENDER" pkg)))))
-            relatives))))
+         (files (mapcar (lambda (file) (namestring (make-pathname :defaults (enough-namestring file base))))
+                        (sta6:walk base))))
+    (mapc (lambda (file) (sta6:render file)) files)))
 
 (defmacro sta6:html5 (&rest tags)
   (let ((head '())
@@ -44,10 +45,8 @@
 
     (dolist (tag tags)
       (cond
-        ((and (consp tag) (eq (first tag) :head))
-         (setf head (rest tag)))
-        (t
-         (push tag body))))
+        ((and (consp tag) (eq (first tag) :head)) (setf head (rest tag)))
+        (t                                        (push tag body))))
 
     `(let ((spinneret:*suppress-inserted-spaces* t)
            (spinneret:*html-style* :tree)
