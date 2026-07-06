@@ -20,24 +20,25 @@
     (mapcan #'sta6:walk
             (uiop:subdirectories dir))))
 
-(defun sta6:render (file)
-  (let ((name (pathname-name file))
-        (extn (pathname-type file))
-        (path (namestring (make-pathname :type nil
-                                         :defaults file))))
-    (cond ((string= extn "md") '())
-          ((string= extn "lisp")
-             (let ((pkg (find-package (string-upcase (concatenate 'string "pages/" path))))
-                   (out (cond ((string= name "404")   (format nil "build/404.html"))
-                              ((string= name "index") (format nil "build/~a.html" path))
-                              (t                      (format nil "build/~a/index.html" path)))))
-               (sta6:spit out (symbol-function (find-symbol "RENDER" pkg))))))))
+(defun sta6:render (pkg-name)
+  (let* ((fname (pathname-name pkg-name))
+         (dirs  (butlast (uiop:split-string pkg-name :separator "/")))
+         (pkg   (find-package (string-upcase (concatenate 'string "pages/" pkg-name))))
+         (out   (cond ((string= fname "404")   (make-pathname :directory '(:relative "build") :name "404" :type "html"))
+                      ((string= fname "index") (make-pathname :directory `(:relative "build" ,@dirs) :name "index" :type "html"))
+                      (t                       (make-pathname :directory `(:relative "build" ,@dirs ,fname) :name "index" :type "html")))))
+    (sta6:spit out (symbol-function (find-symbol "RENDER" pkg)))))
 
 (defun sta6:build ()
-  (let* ((base (uiop:ensure-directory-pathname (truename "src/pages/")))
-         (files (mapcar (lambda (file) (namestring (make-pathname :defaults (enough-namestring file base))))
-                        (sta6:walk base))))
-    (mapc #'sta6:render files)))
+  (let ((base (uiop:ensure-directory-pathname (truename "src/pages/"))))
+    (flet ((extract-package-name (filepath)
+             (let* ((file-dirs (cdr (pathname-directory filepath)))
+                    (base-dirs (cdr (pathname-directory base)))
+                    (dirs      (nthcdr (length base-dirs) file-dirs)))
+               (format nil "~{~A/~}~A"
+                           dirs
+                           (pathname-name filepath)))))
+      (mapc #'sta6:render (mapcar #'extract-package-name (sta6:walk base))))))
 
 (defmacro sta6:html5 (&rest tags)
   (let ((head '())
