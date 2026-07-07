@@ -6,13 +6,13 @@
            #:build
            #:html5))
 
-(defun sta6:spit (path thunk)
+(defun sta6:spit (path fn &rest args)
   (ensure-directories-exist path)
   (with-open-file (out path :direction :output
                             :if-exists :supersede
                             :if-does-not-exist :create)
     (let ((*standard-output* out))
-      (funcall thunk))))
+      (apply fn args))))
   
 (defun sta6:walk (dir)
   (append
@@ -21,13 +21,29 @@
             (uiop:subdirectories dir))))
 
 (defun sta6:render (pkg-name)
-  (let* ((fname (pathname-name pkg-name))
-         (dirs  (butlast (uiop:split-string pkg-name :separator "/")))
-         (pkg   (find-package (string-upcase (concatenate 'string "pages/" pkg-name))))
-         (out   (cond ((string= fname "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
-                      ((string= fname "page") (make-pathname :directory `(:relative "build" ,@dirs) :name "index" :type "html"))
-                      (t                      (make-pathname :directory `(:relative "build" ,@dirs ,fname) :name "index" :type "html")))))
-    (sta6:spit out (symbol-function (find-symbol "RENDER" pkg)))))
+  (let* ((dirs (uiop:split-string pkg-name :separator "/"))
+         (file (car (last dirs)))
+         (pkg  (find-package (string-upcase (concatenate 'string "pages/" pkg-name))))
+         ;; TODO: map dynamic routes
+         (out  (cond ((string= file "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
+                     ((string= file "page") (make-pathname :directory `(:relative "build" ,@(butlast dirs)) :name "index" :type "html"))
+                     (t                     (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,file) :name "index" :type "html")))))
+    (let ((symbol-routes (find-symbol "ROUTES" pkg))
+          (symbol-render (find-symbol "RENDER" pkg)))
+      (flet ((render-multpl ()
+               (dolist (route (funcall (symbol-function symbol-routes)))
+                 (apply #'sta6:spit
+                        out
+                        (symbol-function symbol-render)
+                        (list route))))
+             (render-single ()
+               (apply #'sta6:spit
+                                  out
+                                  (symbol-function symbol-render)
+                                  '())))
+        (if symbol-routes
+              (render-multpl)
+              (render-single))))))
 
 (defun sta6:build ()
   (let ((base (uiop:ensure-directory-pathname (truename "src/pages/"))))
