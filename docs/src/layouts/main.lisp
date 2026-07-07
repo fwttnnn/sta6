@@ -6,4 +6,4 @@
   `(sta6:html5
      (:head
       (:title "sta6 :: documentation"))
-     ,@body))
+      ,@body))
