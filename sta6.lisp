@@ -24,9 +24,9 @@
   (let* ((fname (pathname-name pkg-name))
          (dirs  (butlast (uiop:split-string pkg-name :separator "/")))
          (pkg   (find-package (string-upcase (concatenate 'string "pages/" pkg-name))))
-         (out   (cond ((string= fname "404")   (make-pathname :directory '(:relative "build") :name "404" :type "html"))
-                      ((string= fname "index") (make-pathname :directory `(:relative "build" ,@dirs) :name "index" :type "html"))
-                      (t                       (make-pathname :directory `(:relative "build" ,@dirs ,fname) :name "index" :type "html")))))
+         (out   (cond ((string= fname "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
+                      ((string= fname "page") (make-pathname :directory `(:relative "build" ,@dirs) :name "index" :type "html"))
+                      (t                      (make-pathname :directory `(:relative "build" ,@dirs ,fname) :name "index" :type "html")))))
     (sta6:spit out (symbol-function (find-symbol "RENDER" pkg)))))
 
 (defun sta6:build ()
