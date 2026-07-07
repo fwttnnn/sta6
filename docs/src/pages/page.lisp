@@ -8,12 +8,13 @@
       "sta6: "
       (:small "sta(six), static"))
     (:p "static site generator (bundler), written in Common Lisp.")
-    (:p (multiple-value-bind (sec min hour day month year)
-            (decode-universal-time (get-universal-time))
-          (format nil "~4,'0d-~2,'0d-~2,'0d~%" year month day)))
-    (:div
-      (dotimes (i 10)
-        (:span i)))
-    (:ul 
-      (:li (:a :href "/docs/quickstart" "quickstart/")
-      (:li (:a :href "/docs/routing" "routing/"))))))
+    (:p
+      (multiple-value-bind (sec min hour day month year)
+          (decode-universal-time (get-universal-time))
+        (format nil "~4,'0d-~2,'0d-~2,'0d~%" year month day)))
+    (:ul
+      (let ((docs (mapcar (lambda (path)
+                            (pathname-name path))
+                         (sta6:walk (uiop:ensure-directory-pathname (truename "src/docs/"))))))
+        (loop for doc in docs do
+          (:li (:a :href (format nil "/docs/~a" doc) (format nil "~a/" doc))))))))
