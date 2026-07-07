@@ -33,7 +33,8 @@
       (flet ((render-multpl ()
                (dolist (route (funcall (symbol-function symbol-routes)))
                  (apply #'sta6:spit
-                        out
+                        ;; TODO: this is hack, only works for 1-depth dyn route.
+                        (make-pathname :directory `(:relative "build" ,@(butlast (mapcar (lambda (dir) (if (and (>= (length dir) 3) (char= (char dir 0) #\[) (char= (char dir (1- (length dir))) #\])) route dir)) dirs))) :name "index" :type "html")
                         (symbol-function symbol-render)
                         (list route))))
              (render-single ()
