@@ -4,7 +4,9 @@
            #:render))
 
 (defun pages/docs/[slug]/page:routes ()
-  (mapcar (lambda (path) (pathname-name path)) (sta6:walk (uiop:ensure-directory-pathname (truename "src/docs/")))))
+  (mapcar (lambda (path)
+            (pathname-name path))
+          (sta6:walk (uiop:ensure-directory-pathname (truename "src/docs/")))))
 
 (defun pages/docs/[slug]/page:render (slug)
   (layouts/main:html5
