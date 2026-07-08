@@ -34,18 +34,19 @@ The minimal entry point should call `sta6:build`. Here is `app.lisp`:
 
 The contents are located in `src/pages`.
 
-Each page should define a package whose name matches its path. For example, the page `src/pages/index.lisp` should define the package `pages/index`.
+Each page should:
 
-Each page should export a function named `render`, which is the entry point used by sta6 to generate HTML.
+  - Define a package whose name matches its path (e.g., the page `src/pages/page.lisp` should define the package `pages/page`).
+  - Export a function named `render`, which is the entry point used by sta6 to generate HTML.
 
-Create your homepage at `src/pages/index.lisp`:
+Create your homepage at `src/pages/page.lisp`:
 
 ```
-(defpackage #:pages/index
+(defpackage #:pages/page
   (:use #:cl)
   (:export #:render))
 
-(defun pages/index:render ()
+(defun pages/page:render ()
   (sta6:html5
     (:p "hello, from sta6!")))
 ```

@@ -11,6 +11,7 @@
        (:meta :name "viewport" :content "width=device-width, initial-scale=1.0"))
      (:header
        (:nav
-         (:a :href "/"     "home/")
-         (:a :href "/docs" "docs/")))
+         (:ul :style "list-style: none; display: flex; gap: 12px; padding: 0;"
+           (:li (:a :href "/"     "home/"))
+           (:li (:a :href "/docs" "docs/")))))
      ,@body))

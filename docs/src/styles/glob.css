@@ -35,10 +35,7 @@ body {
     margin: 12px 0;
   }
 
-  nav {
-    display: flex;
-    gap: 12px;
-
-    margin-bottom: 20px;
+  li {
+    margin: 6px 0;
   }
 }
