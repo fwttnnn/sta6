@@ -27,3 +27,5 @@ sbcl --noinform \
                (push #p"../" asdf:*central-registry*)))' \
      --eval '(ql:quickload :docs)' \
      --eval '(docs:main)'
+
+cp -r src/styles build/

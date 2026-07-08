@@ -1,0 +1,44 @@
+*,
+::after,
+::before,
+::backdrop {
+  box-sizing: border-box;
+  border: 0 solid;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 0 10px;
+
+  font-size: 1.1em;
+
+  a {
+    color: #0000EE;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  p {
+    margin: 12px 0;
+    line-height: 1.3em;
+  }
+
+  ul, ol {
+    padding-left: 40px;
+    margin: 12px 0;
+  }
+
+  nav {
+    display: flex;
+    gap: 12px;
+
+    margin-bottom: 20px;
+  }
+}
