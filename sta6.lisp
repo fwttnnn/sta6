@@ -33,8 +33,22 @@
       (flet ((render-multpl ()
                (dolist (route (funcall (symbol-function symbol-routes)))
                  (apply #'sta6:spit
-                        ;; TODO: this is hack, only works for 1-depth dyn route.
-                        (make-pathname :directory `(:relative "build" ,@(butlast (mapcar (lambda (dir) (if (and (>= (length dir) 3) (char= (char dir 0) #\[) (char= (char dir (1- (length dir))) #\])) route dir)) dirs))) :name "index" :type "html")
+                        ;; TODO: THIS IS A HACK
+                        ;;       only works for 1-depth dyn route.
+                        (make-pathname
+                          :directory (append
+                                        '(:relative "build")
+                                        (butlast
+                                          (mapcan
+                                            (lambda (dir)
+                                              (if (and (>= (length dir) 3)
+                                                      (char= (char dir 0) #\[)
+                                                      (char= (char dir (1- (length dir))) #\]))
+                                                (uiop:split-string route :separator "/")
+                                                (list dir)))
+                                            dirs)))
+                          :name "index"
+                          :type "html")
                         (symbol-function symbol-render)
                         (list route))))
              (render-single ()
