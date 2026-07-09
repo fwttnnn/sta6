@@ -4,13 +4,19 @@
            #:render))
 
 (defun pages/docs/[slug]/page:routes ()
-  (mapcar (lambda (path)
-            (pathname-name path))
-          (sta6:walk (uiop:ensure-directory-pathname (truename "src/docs/")))))
+  (let ((root (truename "src/docs/")))
+    (mapcar
+      (lambda (path)
+        (namestring
+          (make-pathname
+            :type nil
+            :defaults (uiop:enough-pathname path root))))
+      (sta6:walk root))))
 
 (defun pages/docs/[slug]/page:render (slug)
   (layouts/main:html5
-    (let* ((path (merge-pathnames (uiop:ensure-directory-pathname (truename "src/docs/")) (format nil "~a.md" slug)))
+    (let* ((path (merge-pathnames (format nil "~a.md" slug)
+                                  (uiop:ensure-directory-pathname (truename "src/docs/"))))
            (file (uiop:read-file-string path)))
       (:raw
         (with-output-to-string (out)
