@@ -19,6 +19,18 @@ src/pages/
       page.lisp -> /blog/<slug>
 ```
 
+However, you cannot simply treat a file as dynamic routing:
+
+```text
+src/pages/
+  blog/
+    [slug].lisp -> does not work
+```
+
+As much as I like this to work, `sbcl` can't find files that starts with '[' (because `sbcl` escapes it into '^['), at least that's (only) on MS-DOS, I haven't tried compiling with *nix systems.
+
+Note that I might change how `sta6` parse dynamic route files, perhaps something like `+slug+.lisp`.
+
 With dynamic routes, you need to tell `sta6` what routes are available:
 
 ```
