@@ -15,26 +15,22 @@ You can also do dynamic routing:
 ```text
 src/pages/
   blog/
-    [slug]/
+    +slug+/
       page.lisp -> /blog/<slug>
 ```
 
-However, you cannot simply treat a file as dynamic routing:
+Or, name a file as `+slug+`:
 
 ```text
 src/pages/
   blog/
-    [slug].lisp -> does not work
+    +slug+.lisp -> /blog/<slug>
 ```
-
-As much as I like this to work, `sbcl` can't find files that starts with '[' (because `sbcl` escapes it into '^['), at least that's (only) on MS-DOS, I haven't tried compiling with *nix systems.
-
-Note that I might change how `sta6` parse dynamic route files, perhaps something like `+slug+.lisp`.
 
 With dynamic routes, you need to tell `sta6` what routes are available:
 
 ```
-(defun pages/blog/[slug]/page:routes ()
+(defun pages/blog/+slug+:routes ()
   '("my-first-post" "how-to-use-sta6" "sta6-for-static-websites"))
 ```
 
@@ -44,10 +40,10 @@ Which yields these routes:
   - /blog/how-to-use-sta6
   - /blog/sta6-for-static-websites
 
-Lastly, the routes are gonna get passed through `render`:
+Lastly, each route(s) are gonna get passed through `render`:
 
 ```
-(defun pages/blog/[slug]/page:render (slug)
+(defun pages/blog/+slug+:render (slug)
   (:p (format nil "at ~a" slug)))
 ```
 
