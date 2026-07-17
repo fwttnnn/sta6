@@ -38,24 +38,24 @@
                         (make-pathname
                           :directory (append
                                         '(:relative "build")
-                                        (butlast
-                                          (mapcan
-                                            (lambda (dir)
-                                              (if (and (>= (length dir) 3)
-                                                      (char= (char dir 0) #\+)
-                                                      (char= (char dir (1- (length dir))) #\+))
-                                                (uiop:split-string route :separator "/")
-                                                (list dir)))
-                                            dirs)))
+                                        (let ((merged (mapcan (lambda (dir)
+                                                                (if (and (>= (length dir) 3)
+                                                                        (char= (char dir 0) #\+)
+                                                                        (char= (char dir (1- (length dir))) #\+))
+                                                                  (uiop:split-string route :separator "/")
+                                                                  (list dir)))
+                                                              dirs)))
+                                          (cond ((string= (car (last merged)) "page") (butlast merged))
+                                                (t                                     merged))))
                           :name "index"
                           :type "html")
                         (symbol-function symbol-render)
                         (list route))))
              (render-single ()
                (apply #'sta6:spit
-                                  out
-                                  (symbol-function symbol-render)
-                                  '())))
+                      out
+                      (symbol-function symbol-render)
+                      '())))
         (if symbol-routes
               (render-multpl)
               (render-single))))))
