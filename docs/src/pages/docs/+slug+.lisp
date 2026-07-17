@@ -1,9 +1,9 @@
-(defpackage #:pages/docs/+slug+/page
+(defpackage #:pages/docs/+slug+
   (:use #:cl)
   (:export #:routes
            #:render))
 
-(defun pages/docs/+slug+/page:routes ()
+(defun pages/docs/+slug+:routes ()
   (let ((root (truename "src/docs/")))
     (mapcar
       (lambda (path)
@@ -13,7 +13,7 @@
             :defaults (uiop:enough-pathname path root))))
       (sta6:walk root))))
 
-(defun pages/docs/+slug+/page:render (slug)
+(defun pages/docs/+slug+:render (slug)
   (layouts/main:html5
     (let* ((path (merge-pathnames (format nil "~a.md" slug)
                                   (uiop:ensure-directory-pathname (truename "src/docs/"))))
