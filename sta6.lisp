@@ -42,8 +42,8 @@
                                           (mapcan
                                             (lambda (dir)
                                               (if (and (>= (length dir) 3)
-                                                      (char= (char dir 0) #\[)
-                                                      (char= (char dir (1- (length dir))) #\]))
+                                                      (char= (char dir 0) #\+)
+                                                      (char= (char dir (1- (length dir))) #\+))
                                                 (uiop:split-string route :separator "/")
                                                 (list dir)))
                                             dirs)))
