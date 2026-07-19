@@ -48,15 +48,22 @@
                                          (append (recurse (butlast dyn-routes)) (list slug))))))
                             (recurse dyn-routes)))
                         (expand-dyn-routes (dyn-routes-replaced)
-                          (labels ((recurse (route-prefix expanded-prefix rest)
-                                     (when (null rest)
-                                       (return-from recurse (list (list (reverse route-prefix)
-                                                                        (reverse expanded-prefix)))))
-                                     (loop for x in (first rest)
-                                               append (recurse (cons x route-prefix)
-                                                               (cons x expanded-prefix)
-                                                               (rest rest)))))
-                            (recurse (list (first dyn-routes-replaced)) nil (rest dyn-routes-replaced)))))
+                          (labels ((recurse-expand (route-prefix expanded-prefix rest)
+                                     (if (null rest)
+                                         (list (list (reverse route-prefix)
+                                                     (reverse expanded-prefix)))
+                                         (let ((next (first rest)))
+                                           (if (listp next)
+                                               (loop for x in next
+                                                     append (recurse-expand (cons x route-prefix)
+                                                                            (cons x expanded-prefix)
+                                                                            (rest rest)))
+                                               (recurse-expand (cons next route-prefix)
+                                                               expanded-prefix
+                                                               (rest rest)))))))
+                             (recurse-expand (list (first dyn-routes-replaced))
+                                             nil
+                                             (rest dyn-routes-replaced)))))
                    (dolist (entry (expand-dyn-routes (replace-dyn-routes (uiop:split-string dyn-path :separator "/"))))
                      (destructuring-bind (route args) entry
                        (apply #'sta6:spit
