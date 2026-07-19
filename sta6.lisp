@@ -21,12 +21,8 @@
             (uiop:subdirectories dir))))
 
 (defun sta6:render (pkg-name *route-cache*)
-  (let* ((dirs      (uiop:split-string pkg-name :separator "/"))
-         (file      (car (last dirs)))
-         (pkg       (find-package (string-upcase (concatenate 'string "pages/" pkg-name))))
-         (out-path  (cond ((string= file "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
-                          ((string= file "page") (make-pathname :directory `(:relative "build" ,@(butlast dirs)) :name "index" :type "html"))
-                          (t                     (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,file) :name "index" :type "html")))))
+  (let  ((dirs (uiop:split-string pkg-name :separator "/"))
+         (pkg  (find-package (string-upcase (concatenate 'string "pages/" pkg-name)))))
     (let ((symbol-routes (find-symbol "ROUTES" pkg))
           (symbol-render (find-symbol "RENDER" pkg)))
       (flet ((render-multpl ()
@@ -76,10 +72,14 @@
                               (symbol-function symbol-render)
                               args))))))
              (render-single ()
-               (apply #'sta6:spit
+               (let* ((file (car (last dirs)))
+                      (out-path (cond ((string= file "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
+                                      ((string= file "page") (make-pathname :directory `(:relative "build" ,@(butlast dirs)) :name "index" :type "html"))
+                                      (t                     (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,file) :name "index" :type "html")))))
+                 (apply #'sta6:spit
                       out-path
                       (symbol-function symbol-render)
-                      '())))
+                      '()))))
         (if symbol-routes
               (render-multpl)
               (render-single))))))
