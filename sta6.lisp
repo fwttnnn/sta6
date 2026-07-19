@@ -100,12 +100,10 @@
 (defmacro sta6:html5 (&rest tags)
   (let ((head '())
         (body '()))
-
     (dolist (tag tags)
       (cond
         ((and (consp tag) (eq (first tag) :head)) (setf head (rest tag)))
         (t                                        (push tag body))))
-
     `(let ((spinneret:*suppress-inserted-spaces* t)
            (spinneret:*html-style* :tree)
            (*print-pretty* nil))
