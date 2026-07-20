@@ -15,6 +15,7 @@
              "BETA"))))
     (:p "static site generator, for Common Lisp.")
     (:ul
+      (:li (:a :href "/docs/overview" "what is sta6?"))
       (:li (:a :href "https://github.com/fwttnnn/sta6" :target "_blank" "github")))
     (:footer
       (:small "generated with " (:code "sta6") "."))))
