@@ -12,7 +12,7 @@ Currently, you only install sta6 locally:
   
 Link the cloned repo into quicklisp registry:
 
-    ln -s sta6 ~/quicklisp/local-projects
+    ln -s "$(pwd)/sta6" ~/quicklisp/local-projects
 
 Documentation
 -------------
