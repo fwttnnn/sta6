@@ -20,7 +20,9 @@
     (mapcan #'sta6:walk
             (uiop:subdirectories dir))))
 
-(defun sta6:render (pkg-name *route-cache*)
+;; TODO: think of another way to render without
+;;       passing an extra *dyn-route-cache*
+(defun sta6:render (pkg-name *dyn-route-cache*)
   (let  ((dirs (uiop:split-string pkg-name :separator "/"))
          (pkg  (find-package (string-upcase (concatenate 'string "pages/" pkg-name)))))
     (let ((symbol-routes (find-symbol "ROUTES" pkg))
@@ -30,13 +32,13 @@
                      (dyn-path (format nil "~{~a~^/~}" (if (string= (car (last dirs)) "page")
                                                            (butlast dirs)
                                                            dirs))))
-                 (setf (gethash dyn-path *route-cache*) routes)
+                 (setf (gethash dyn-path *dyn-route-cache*) routes)
                  (flet ((replace-dyn-routes (dyn-routes)
                           (labels ((recurse (dyn-routes)
                                      (when (null dyn-routes)
                                        (return-from recurse nil))
                                      (let ((slug (car (last dyn-routes)))
-                                           (cache (gethash (format nil "~{~a~^/~}" dyn-routes) *route-cache*)))
+                                           (cache (gethash (format nil "~{~a~^/~}" dyn-routes) *dyn-route-cache*)))
                                        (if (and (>= (length slug) 3)
                                                 (char= (char slug 0) #\+)
                                                 (char= (char slug (1- (length slug))) #\+))
@@ -93,9 +95,9 @@
                (format nil "~{~A/~}~A"
                            dirs
                            (pathname-name filepath)))))
-      (let ((route-cache (make-hash-table :test #'equal)))
+      (let ((*dyn-route-cache* (make-hash-table :test #'equal)))
         (dolist (pkg-name (mapcar #'extract-package-name (sta6:walk base)))
-          (sta6:render pkg-name route-cache))))))
+          (sta6:render pkg-name *dyn-route-cache*))))))
 
 (defmacro sta6:html5 (&rest tags)
   (let ((head '())
