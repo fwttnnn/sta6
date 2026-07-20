@@ -37,7 +37,7 @@
                                       (setf (cdr cell)
                                             (reverse (recurse-fragments (cdr fragments) (cdr cell))))
                                       (reverse tree))))))
-                       (setf lst (reverse (recurse-fragments fragments lst)))
+                       (setf lst (recurse-fragments fragments lst))
                        (recurse (cdr paths) lst))))
                  (render-node (node parent-path)
                    (let* ((name (car node))
