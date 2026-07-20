@@ -1,6 +1,6 @@
 # What is `sta6`?
 
-As simple as it gets, `sta6` is a tiny static site generator (bundler) that turns `pages/*.lisp` into `pages/*.html`, with support for dynamic routes [[1](/docs/routing)].
+As simple as it gets, `sta6` is a tiny static site generator (bundler) that turns `pages/*.lisp` into `build/*.html`, with support for dynamic routes [[1](/docs/routing)].
 
 `sta6`, and many other SSGs are intended for content-driven sites (e.g., blogs, docs, wiki).
 
