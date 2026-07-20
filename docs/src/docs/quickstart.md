@@ -51,15 +51,7 @@ Create your homepage at `src/pages/page.lisp`:
     (:p "hello, from sta6!")))
 ```
 
-Finally, run the app with your favorite Common Lisp implementation:
-
-```
-(push #p"./" asdf:*central-registry*)
-(ql:quickload :app)
-(app:main)
-```
-
-For example, using SBCL:
+Finally, run the app with your favorite Common Lisp implementation (`sbcl`, in this case):
 
 ```sh
 $ sbcl
