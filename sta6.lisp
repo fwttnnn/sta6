@@ -4,6 +4,7 @@
            #:walk
            #:render
            #:build
+           #:html
            #:html5))
 
 (defun sta6:spit (path fn &rest args)
@@ -98,6 +99,10 @@
       (let ((*dyn-route-cache* (make-hash-table :test #'equal)))
         (dolist (pkg-name (mapcar #'extract-package-name (sta6:walk base)))
           (sta6:render pkg-name *dyn-route-cache*))))))
+
+(defmacro sta6:html (&rest tags)
+  `(spinneret:with-html
+     ,@tags))
 
 (defmacro sta6:html5 (&rest tags)
   (let ((head '())
