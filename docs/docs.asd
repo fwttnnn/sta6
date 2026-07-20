@@ -1,7 +1,8 @@
 (asdf:defsystem "docs"
   :depends-on ("sta6" "3bmd" "3bmd-ext-code-blocks")
   :serial t
-  :components ((:file "src/layouts/main")
+  :components ((:file "src/components/links")
+               (:file "src/layouts/main")
                (:file "src/pages/docs/+slug+")
                (:file "src/pages/docs/page")
                (:file "src/pages/important")
