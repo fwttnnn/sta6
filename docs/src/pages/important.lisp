@@ -20,4 +20,7 @@
     (:ul
       (:li "reddit post(s): "
         (:ul
-          (:li (:a :href "https://www.reddit.com/r/suckless/s/nmDgXvtt1E" :target "_blank" "r/suckless")))))))
+          (:li (:a :href "https://www.reddit.com/r/suckless/s/nmDgXvtt1E" :target "_blank" "r/suckless"))))
+      (:li "hn post(s): "
+          (:ul
+            (:li (:a :href "https://news.ycombinator.com/item?id=48994000" :target "_blank" "1st")))))))
