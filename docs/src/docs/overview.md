@@ -1,12 +1,14 @@
 # What is `sta6`?
 
+`sta6`: sta(six), static.
+
 As simple as it gets, `sta6` is a tiny static site generator (bundler) that turns `pages/*.lisp` into `build/*.html`, with support for dynamic routes [[1](/docs/routing)].
 
 `sta6`, and many other SSGs are intended for content-driven sites (e.g., blogs, docs, wiki).
 
 Rather than providing built-in Markdown support, `sta6` lets you integrate any Markdown parser amongst the library of Common Lisp [[2](/docs/3rd-party/markdown)].
 
-Using an SSG does not mean your site can't be interactive. You can use JavaScript/TypeScript to bring a simple interactivity to your site [[3](/docs/3rd-party/javascript)].
+Using an SSG does not mean your site can't be interactive. You can use JavaScript/TypeScript to bring a simple interactivity to your site [[3](/docs/3rd-party/javascript)]. For example, this docs uses [`@hotwired/turbo`](https://turbo.hotwired.dev/handbook/introduction) for an SPA-like routing. Although, that's an additional [~90kB](https://bundlephobia.com/package/@hotwired/turbo@8.0.23) to pay.
 
 If your site requires richer client-side interactions (i.e., DOM manipulation), then consider adding an external library:
 
@@ -14,10 +16,12 @@ If your site requires richer client-side interactions (i.e., DOM manipulation), 
   - [React](https://react.dev/)
   - [Vue](https://vuejs.org/)
 
-You can create `layouts`, and `components` (example: [fwttnnn.com/](https://github.com/fwttnnn/fwttnnn.com/tree/master/src)). Basically, `sta6` tries to do what `Next.js` is capable of.
+You can create `layouts`, and `components` (example: [sta6/docs](https://github.com/fwttnnn/sta6/tree/master/docs/src)). Basically, `sta6` tries to do what `Next.js` is capable of.
 
 ## Why bother using `sta6`?
 
   1. You do not need (to learn) an external templating language (e.g., [Nunjucks](https://mozilla.github.io/nunjucks/), [Handlebars](https://handlebarsjs.com/), [EJS](https://ejs.co/)). 
   2. `sta6` isn't fancy. It's tiny, minimal, barebone.
   3. Lisp is beautiful, and `sta6` is your excuse to try it.
+
+Note that `sta6` is still in it's early development ([BETA](/important)). Some quality-of-life features are still absent [[4](/important#features)].
