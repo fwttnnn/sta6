@@ -14,4 +14,7 @@
          (:ul :style "list-style: none; display: flex; gap: 12px; padding: 0;"
            (:li (:a :href "/"     "home/"))
            (:li (:a :href "/docs" "docs/")))))
-     ,@body))
+     ,@body
+     ;; for seamless routing, see: https://turbo.hotwired.dev/handbook/installing#in-compiled-form
+     (:script :type "module"
+              :src "https://cdn.jsdelivr.net/npm/@hotwired/turbo@latest/dist/turbo.es2017-esm.min.js")))
