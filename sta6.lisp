@@ -29,7 +29,7 @@
     (let ((symbol-routes (find-symbol "ROUTES" pkg))
           (symbol-render (find-symbol "RENDER" pkg)))
       (flet ((render-multpl ()
-               (let ((routes (funcall (symbol-function symbol-routes)))
+               (let ((routes (mapcar #'princ-to-string (funcall (symbol-function symbol-routes))))
                      (dyn-path (format nil "~{~a~^/~}" (if (string= (car (last dirs)) "page")
                                                            (butlast dirs)
                                                            dirs))))
