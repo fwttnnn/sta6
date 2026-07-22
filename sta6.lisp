@@ -31,12 +31,13 @@
                            (pathname-name filepath))))
            (replace-dynamic-route (slugs args)
              (let ((args (copy-list args)))
-               (mapcar (lambda (slug)
+               (mapcan (lambda (slug)
                          (if (and (>= (length slug) 3)
                                   (char= (char slug 0) #\+)
                                   (char= (char slug (1- (length slug))) #\+))
-                             (princ-to-string (pop args))
-                             slug))
+                             (uiop:split-string (princ-to-string (pop args))
+                                                :separator "/")
+                             (list slug)))
                        slugs))))
       (labels ((recurse (dir args)
                  (let ((saved-routes nil))
@@ -60,7 +61,14 @@
                              (setf saved-routes (apply (symbol-function symbol-routes) args))
                              (dolist (route saved-routes)
                                (apply #'sta6:spit
-                                      (make-pathname :directory `(:relative "build" ,@(replace-dynamic-route (butlast dirs) (append args (list route)))) :name "index" :type "html")
+                                      (make-pathname :directory `(:relative "build"
+                                                                            ,@(replace-dynamic-route
+                                                                                (if (string= filename "page")
+                                                                                    (butlast dirs)
+                                                                                    dirs)
+                                                                                (append args (list route))))
+                                                                  :name "index"
+                                                                  :type "html")
                                       (symbol-function symbol-render)
                                       (append args (list route)))))
                            (if saved-routes
