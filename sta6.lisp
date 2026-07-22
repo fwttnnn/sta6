@@ -41,6 +41,8 @@
                        slugs))))
       (labels ((recurse (dir args)
                  (let ((saved-routes nil))
+                   ;; NOTE: so that `setf saved-routes` would be called first,
+                   ;;       refactor this later.
                    (dolist (filepath (sort (copy-list (uiop:directory-files dir))
                                            (lambda (a b)
                                              (cond ((string= (pathname-name a) "page") t)
