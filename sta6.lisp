@@ -21,85 +21,48 @@
     (mapcan #'sta6:walk
             (uiop:subdirectories dir))))
 
-;; TODO: think of another way to render without
-;;       passing an extra *dyn-route-cache*
-(defun sta6:render (pkg-name *dyn-route-cache*)
-  (let  ((dirs (uiop:split-string pkg-name :separator "/"))
-         (pkg  (find-package (string-upcase (concatenate 'string "pages/" pkg-name)))))
-    (let ((symbol-routes (find-symbol "ROUTES" pkg))
-          (symbol-render (find-symbol "RENDER" pkg)))
-      (flet ((render-multpl ()
-                ;; TODO: `routes` needs to know it's prev slug
-               (let ((routes (mapcar #'princ-to-string (funcall (symbol-function symbol-routes))))
-                     (dyn-path (format nil "~{~a~^/~}" (if (string= (car (last dirs)) "page")
-                                                           (butlast dirs)
-                                                           dirs))))
-                 (setf (gethash dyn-path *dyn-route-cache*) routes)
-                 (flet ((replace-dyn-routes (dyn-routes)
-                          (labels ((recurse (dyn-routes)
-                                     (when (null dyn-routes)
-                                       (return-from recurse nil))
-                                     (let ((slug (car (last dyn-routes)))
-                                           (cache (gethash (format nil "~{~a~^/~}" dyn-routes) *dyn-route-cache*)))
-                                       (if (and (>= (length slug) 3)
-                                                (char= (char slug 0) #\+)
-                                                (char= (char slug (1- (length slug))) #\+))
-                                         (append (recurse (butlast dyn-routes)) (list cache))
-                                         (append (recurse (butlast dyn-routes)) (list slug))))))
-                            (recurse dyn-routes)))
-                        (expand-dyn-routes (dyn-routes-replaced)
-                          (labels ((recurse-expand (route-prefix expanded-prefix rest)
-                                     (if (null rest)
-                                         (list (list (reverse route-prefix)
-                                                     (reverse expanded-prefix)))
-                                         (let ((next (first rest)))
-                                           (if (listp next)
-                                               (loop for x in next
-                                                     append (recurse-expand (cons x route-prefix)
-                                                                            (cons x expanded-prefix)
-                                                                            (rest rest)))
-                                               (recurse-expand (cons next route-prefix)
-                                                               expanded-prefix
-                                                               (rest rest)))))))
-                             (recurse-expand (list (first dyn-routes-replaced))
-                                             nil
-                                             (rest dyn-routes-replaced)))))
-                   (dolist (entry (expand-dyn-routes (replace-dyn-routes (uiop:split-string dyn-path :separator "/"))))
-                     (destructuring-bind (route args) entry
-                       (apply #'sta6:spit
-                              (make-pathname
-                                :directory `(:relative "build" ,@(mapcan (lambda (dir)
-                                                                           (uiop:split-string dir :separator "/"))
-                                                                         route))
-                                :name "index"
-                                :type "html")
-                              (symbol-function symbol-render)
-                              args))))))
-             (render-single ()
-               (let* ((file (car (last dirs)))
-                      (out-path (cond ((string= file "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
-                                      ((string= file "page") (make-pathname :directory `(:relative "build" ,@(butlast dirs)) :name "index" :type "html"))
-                                      (t                     (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,file) :name "index" :type "html")))))
-                 (apply #'sta6:spit
-                      out-path
-                      (symbol-function symbol-render)
-                      '()))))
-        (if symbol-routes
-              (render-multpl)
-              (render-single))))))
+(defun sta6:render (args)
+  ())
 
 (defun sta6:build ()
-  (let ((base (uiop:ensure-directory-pathname (truename "src/pages/"))))
+  (let ((root (uiop:ensure-directory-pathname (truename "src/pages/"))))
     (flet ((extract-package-name (filepath)
              (let* ((file-dirs (rest (pathname-directory filepath)))
-                    (base-dirs (rest (pathname-directory base)))
+                    (base-dirs (rest (pathname-directory root)))
                     (dirs      (nthcdr (length base-dirs) file-dirs)))
-               (format nil "~{~A/~}~A"
+               (format nil "~{~a/~}~a"
                            dirs
-                           (pathname-name filepath)))))
-      (let ((*dyn-route-cache* (make-hash-table :test #'equal)))
-        (dolist (pkg-name (mapcar #'extract-package-name (sta6:walk base)))
-          (sta6:render pkg-name *dyn-route-cache*))))))
+                           (pathname-name filepath))))
+           (dynamic-route-p (route)
+             (some (lambda (slug)
+                     (and (>= (length slug) 3)
+                           (char= (char slug 0) #\+)
+                           (char= (char slug (1- (length slug))) #\+)))
+                   (uiop:split-string route :separator "/"))))
+      (labels ((render (dir args)
+                 (dolist (filepath (uiop:directory-files dir))
+                   (let* ((pkg-name (extract-package-name filepath))
+                          (pkg (find-package (string-upcase (concatenate 'string "pages/" pkg-name))))
+                          (dirs (uiop:split-string pkg-name :separator "/"))
+                          (filename (car (last dirs)))
+                          (output-path (cond ((string= filename "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
+                                             ((string= filename "page") (make-pathname :directory `(:relative "build" ,@(butlast dirs)) :name "index" :type "html"))
+                                             (t                         (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,filename) :name "index" :type "html"))))
+                          (symbol-routes (find-symbol "ROUTES" pkg))
+                          (symbol-render (find-symbol "RENDER" pkg)))
+                     (if symbol-routes
+                         (dolist (route (apply (symbol-function symbol-routes) args))
+                           (apply #'sta6:spit
+                                  (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,(princ-to-string route)) :name "index" :type "html")
+                                  (symbol-function symbol-render)
+                                  (append args (list route))))
+                         (apply #'sta6:spit
+                                output-path
+                                (symbol-function symbol-render)
+                                args))))
+                 (dolist (child (uiop:subdirectories dir))
+                   (render child args))))
+        (render root '())))))
 
 (defmacro sta6:html (&rest tags)
   `(spinneret:with-html
