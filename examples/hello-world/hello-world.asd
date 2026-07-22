@@ -3,5 +3,5 @@
   :serial t
   :components ((:file "src/pages/page")
                ;; NOTE: make sure the entry point
-               ;;       last one that's loaded.
+               ;;       is the last one that's loaded.
                (:file "hello-world")))
