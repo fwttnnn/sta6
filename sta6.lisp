@@ -29,6 +29,7 @@
     (let ((symbol-routes (find-symbol "ROUTES" pkg))
           (symbol-render (find-symbol "RENDER" pkg)))
       (flet ((render-multpl ()
+                ;; TODO: `routes` needs to know it's prev slug
                (let ((routes (mapcar #'princ-to-string (funcall (symbol-function symbol-routes))))
                      (dyn-path (format nil "~{~a~^/~}" (if (string= (car (last dirs)) "page")
                                                            (butlast dirs)
