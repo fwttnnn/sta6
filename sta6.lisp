@@ -50,9 +50,6 @@
                             (pkg (find-package (string-upcase (concatenate 'string "pages/" pkg-name))))
                             (dirs (uiop:split-string pkg-name :separator "/"))
                             (filename (car (last dirs)))
-                            (output-path (cond ((string= filename "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
-                                               ((string= filename "page") (make-pathname :directory `(:relative "build" ,@(butlast dirs)) :name "index" :type "html"))
-                                               (t                         (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,filename) :name "index" :type "html"))))
                             (symbol-routes (find-symbol "ROUTES" pkg))
                             (symbol-render (find-symbol "RENDER" pkg)))
                        ;; TODO: check if parent is a dynamic slug
@@ -78,7 +75,9 @@
                                       (symbol-function symbol-render)
                                       (append args (list route))))
                              (apply #'sta6:spit
-                                    output-path
+                                    (cond ((string= filename "404")  (make-pathname :directory '(:relative "build") :name "404" :type "html"))
+                                          ((string= filename "page") (make-pathname :directory `(:relative "build" ,@(butlast dirs)) :name "index" :type "html"))
+                                          (t                         (make-pathname :directory `(:relative "build" ,@(butlast dirs) ,filename) :name "index" :type "html")))
                                     (symbol-function symbol-render)
                                     args)))))
                    (dolist (sub-dir (uiop:subdirectories dir))
