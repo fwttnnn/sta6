@@ -8,9 +8,9 @@
             (substitute #\-
                         #\Space
                         (string-downcase (getf post :title))))
-            (remove-if-not (lambda (post)
-                             (= year (getf post :year)))
-                           data/posts:+data+)))
+          (remove-if-not (lambda (post)
+                            (= year (getf post :year)))
+                         data/posts:+data+)))
 
 (defun pages/blog/+year+/+slug+/page:render (year slug)
   (sta6:html5
