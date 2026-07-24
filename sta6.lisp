@@ -35,8 +35,12 @@
                          (if (and (>= (length slug) 3)
                                   (char= (char slug 0) #\+)
                                   (char= (char slug (1- (length slug))) #\+))
-                             (uiop:split-string (princ-to-string (pop args))
-                                                :separator "/")
+                             ;; NOTE: you could pass ../ which would
+                             ;;       write something beyond the src/ scope.
+                             (remove-if (lambda (slug)
+                                          (string= slug ".."))
+                                        (uiop:split-string (princ-to-string (pop args))
+                                                           :separator "/"))
                              (list slug)))
                        slugs))))
       (labels ((recurse (dir args)
